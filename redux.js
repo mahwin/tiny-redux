@@ -9,15 +9,25 @@
 
 export function createStore(reducer) {
   let state;
+  const handler = [];
 
   function dispatch(data) {
     state = reducer(state, data);
+    handler.forEach((listener) => {
+      listener();
+    });
   }
   function getState() {
     return state;
   }
+  function subscribe(listener) {
+    handler.push(listener);
+  }
 
-  return { dispatch, getState };
+  return { dispatch, getState, subscribe };
 }
 
 console.log("redux");
+
+// 다시보면 store는 값을 변경할 수 있는 디스패치를 갖고 있고 값을 반환해주는 getState도 갖고 있음.
+// 필요한 것들을 다 갖고 있는 도구 박스

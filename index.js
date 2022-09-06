@@ -12,6 +12,15 @@ function reducer(state, action) {
 
 const store = createStore(reducer);
 
+// 두개의 컴포넌트(A,B)가 하나의 값을 바라보고 있는데  B가 값을 바꿨음. 그러면 A는 모르잖아 그걸 해결하기 위해서 pub sub 구조를 갖춰줌.
+// 구독하고 있으면 바꼇을때 바로 알려주기!
+// 이렇게 핸들러를 store에 연결해놓으면 누가 바꿔도 알 수 있음.
+function handler() {
+  console.log(store.getState());
+}
+
+store.add(handler);
+
 //묶어주는 데이터를 페이로드라고 많이 부름.
 store.dispatch({
   type: "count",
@@ -19,7 +28,6 @@ store.dispatch({
     counter: 1,
   },
 });
-console.log(store.getState());
 
 // updator => 내가 원하는 형태로 함수를 바꿔줘라고 함수를 푸쉬 할 수 있음.
 // get으로 값을 꺼내는 이유는 진짜 state를 받게 되면 변경할 수 있기 떄문임.
