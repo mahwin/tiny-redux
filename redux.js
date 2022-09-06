@@ -7,12 +7,12 @@
 // 2. set 함수를 넘겨 받으며 이곳 저곳에서 스테이트를 변경하는 건 캡슐화 컨셉에서 벗어남.
 // 그래서 차라리 여러곳에서 사용될 상태 값이라면, 그 값을 사용하거나 변경하려는 컴포넌트는 바라보고 수정 요청만 하고 진짜 변경은 리덕스한테 수정하는 형태의 함수를 줄 테니 실행 시켜줘 정도가 됨.
 
-export function createStore(reducer) {
+export function createStore(reducer, middleware = []) {
   let state;
   const handler = [];
 
-  function dispatch(data) {
-    state = reducer(state, data);
+  function dispatch(action) {
+    state = reducer(state, action);
     handler.forEach((listener) => {
       listener();
     });
@@ -23,11 +23,20 @@ export function createStore(reducer) {
   function subscribe(listener) {
     handler.push(listener);
   }
+  middleware = Array.from(middleware).reverse();
 
-  return { dispatch, getState, subscribe };
+  const store = {
+    dispatch,
+    getState,
+    subscribe,
+  };
+
+  let lastDispatch = dispatch;
+  middleware.forEach((m) => {
+    lastDispatch = m(store)(lastDispatch);
+  });
+  return { ...store, dispatch: lastDispatch };
 }
-
-console.log("redux");
 
 // 다시보면 store는 값을 변경할 수 있는 디스패치를 갖고 있고 값을 반환해주는 getState도 갖고 있음.
 // 필요한 것들을 다 갖고 있는 도구 박스
